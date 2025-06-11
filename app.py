@@ -68,8 +68,7 @@ kmeans_model = load_kmeans()
 cluster_labels = {
     0: "Cluster Sehat",
     1: "Cluster Rentan",
-    2: "Cluster Berisiko Tinggi",
-    3: "Cluster Moderat"
+    2: "Cluster Berisiko Tinggi"
 }
 
 # Tombol Prediksi
@@ -82,7 +81,6 @@ if st.button("🔍 Prediksi Sekarang"):
     probability = model.predict_proba(input_df)[0][1]
 
     # Prediksi cluster menggunakan KMeans
-    # Pastikan input_df memiliki 11 fitur yang sesuai dengan pelatihan model
     cluster_label = kmeans_model.predict(input_df)[0]
 
     # Menampilkan hasil prediksi
