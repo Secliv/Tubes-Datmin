@@ -88,7 +88,7 @@ if st.button("🔍 Prediksi Sekarang"):
     # Menampilkan hasil prediksi
     st.subheader("🧠 Hasil Prediksi")
     if prediction == 1:
-        st.error(f"⚠️ Anda kemungkinan **terkena penyakit jantung**. (Skor Probabilitas: {probability:.2f})")
+        st.error(f"⚠️ Anda kemungkinan **berisiko terkena penyakit jantung**. (Skor Probabilitas: {probability:.2f})")
         st.write("👉 Disarankan untuk konsultasi ke dokter dan mulai gaya hidup sehat.")
     else:
         st.success(f"✅ Anda kemungkinan **tidak berisiko** terkena penyakit jantung. (Skor Probabilitas: {probability:.2f})")
