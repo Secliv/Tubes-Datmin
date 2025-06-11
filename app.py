@@ -1,8 +1,12 @@
+
 import streamlit as st
 import pandas as pd
 import joblib
 from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import KMeans
+from pyngrok import ngrok  # Import ngrok
 
+# Set up page config
 st.set_page_config(page_title="Prediksi Risiko Penyakit Jantung", page_icon="❤️")
 st.title("❤️ Prediksi Risiko Penyakit Jantung")
 st.write("Aplikasi ini membantu memprediksi apakah seseorang berisiko terkena penyakit jantung berdasarkan data kesehatan sederhana.")
@@ -10,6 +14,7 @@ st.write("Aplikasi ini membantu memprediksi apakah seseorang berisiko terkena pe
 # Input User
 st.header("📋 Masukkan Data Pasien")
 
+# User input
 age = st.number_input("Umur", min_value=1, max_value=120, value=50)
 sex = st.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
 cp_type = st.selectbox("Jenis Nyeri Dada", ["ATA", "NAP", "ASY", "TA"])
@@ -49,24 +54,49 @@ def encode_inputs():
 # Load model
 @st.cache_resource
 def load_model():
-    return joblib.load("heart_model.pkl")  # pastikan model ini sudah kamu simpan
+    return joblib.load("heart_model.pkl")  # Pastikan model ini sudah kamu simpan
+
+# Load KMeans model (Clustering)
+@st.cache_resource
+def load_kmeans():
+    return joblib.load("kmeans_model.pkl")  # Pastikan model KMeans ini sudah kamu simpan
 
 model = load_model()
+kmeans_model = load_kmeans()
+
+# Mapping cluster numbers to human-readable labels
+cluster_labels = {
+    0: "Cluster Sehat",
+    1: "Cluster Rentan",
+    2: "Cluster Berisiko Tinggi",
+    3: "Cluster Moderat"
+}
 
 # Tombol Prediksi
 if st.button("🔍 Prediksi Sekarang"):
     input_df = encode_inputs()
     st.write("🔎 Data yang Diproses:", input_df)
+
+    # Prediksi menggunakan model Naive Bayes
     prediction = model.predict(input_df)[0]
     probability = model.predict_proba(input_df)[0][1]
 
+    # Prediksi cluster menggunakan KMeans
+    # Pastikan input_df memiliki 11 fitur yang sesuai dengan pelatihan model
+    cluster_label = kmeans_model.predict(input_df)[0]
+
+    # Menampilkan hasil prediksi
     st.subheader("🧠 Hasil Prediksi")
     if prediction == 1:
-        st.error(f"⚠️ Anda kemungkinan **berisiko terkena penyakit jantung**. (Skor Probabilitas: {probability:.2f})")
+        st.error(f"⚠️ Anda kemungkinan **terkena penyakit jantung**. (Skor Probabilitas: {probability:.2f})")
         st.write("👉 Disarankan untuk konsultasi ke dokter dan mulai gaya hidup sehat.")
     else:
         st.success(f"✅ Anda kemungkinan **tidak berisiko** terkena penyakit jantung. (Skor Probabilitas: {probability:.2f})")
         st.write("👍 Tetap jaga pola makan, olahraga rutin, dan periksa kesehatan secara berkala.")
+
+    # Menampilkan hasil cluster dalam kata-kata
+    st.write(f"🎯 Data ini berada pada **{cluster_labels.get(cluster_label, 'Unknown Cluster')}**.")
+    st.write("🔍 Cluster ini menunjukkan karakteristik tertentu yang dapat membantu dalam penentuan risiko.")
 
 st.markdown("---")
 st.caption("Model ini dibuat hanya untuk tujuan edukasi dan tidak menggantikan diagnosis medis profesional.")
